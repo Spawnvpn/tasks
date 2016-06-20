@@ -1,5 +1,9 @@
 import turtle
 
+COLORS = ['#a61212', '#b36d6d', '#7650e6', '#10c0c9', '#13c910', '#edea47',
+          '#6e2626', '#9c9c9c', '#ce21d1', '#9a86c4', '#275a6b', '#067550',
+          '#293826', '#cf7304', '#332b20', '#4f2d29', '#b88ab7', '#231e3d']
+
 
 def draw_diagram(words, type_diagram):
     association_list = words_counter(words)
@@ -13,12 +17,13 @@ def words_counter(words):
     list_words = words.split(" ")
     association_list = []
     seen = []
+    length_list_words = len(list_words)
     for word in list_words:
         if word in seen:
             continue
         seen.append(word)
         association_list.append([word, list_words.count(word),
-                                list_words.count(word) * 360.0 / len(list_words)])
+                                list_words.count(word) * 360.0 / length_list_words])
     print association_list
     return association_list
 
@@ -27,14 +32,11 @@ def draw_sectors(association_list):
     angle = 0
     col = 0
     interval = 200
-    colors = ['#a61212', '#b36d6d', '#7650e6', '#10c0c9', '#13c910', '#edea47',
-              '#6e2626', '#9c9c9c', '#ce21d1', '#9a86c4', '#275a6b', '#067550',
-              '#293826', '#cf7304', '#332b20', '#4f2d29', '#b88ab7', '#231e3d']
     painter = turtle.Turtle()
     for x in association_list:
         painter.setpos(0, 0)
         painter.pendown()
-        painter.fillcolor(colors[col])
+        painter.fillcolor(COLORS[col])
         painter.fill(True)
         painter.setpos(0, 0)
         painter.left(angle)
@@ -47,7 +49,7 @@ def draw_sectors(association_list):
         painter.setheading(0)
         painter.penup()
         painter.setpos(300, interval)
-        painter.dot(20, colors[col])
+        painter.dot(20, COLORS[col])
         painter.setpos(320, interval)
         painter.write(x[0])
         painter.setpos(360, interval)
@@ -61,9 +63,6 @@ def draw_sectors(association_list):
 
 def draw_rays(association_list):
     col = 0
-    colors = ['#a61212', '#b36d6d', '#7650e6', '#10c0c9', '#13c910', '#edea47',
-              '#6e2626', '#9c9c9c', '#ce21d1', '#9a86c4', '#275a6b', '#067550',
-              '#293826', '#cf7304', '#332b20', '#4f2d29', '#b88ab7', '#231e3d']
     painter = turtle.Turtle()
     angle_interval = 360 / len(association_list)
     painter.pensize(2)
@@ -72,9 +71,9 @@ def draw_rays(association_list):
         painter.left(angle_interval)
         for i in xrange(x[1]):
             painter.fill(1)
-            painter.pencolor(colors[col])
+            painter.pencolor(COLORS[col])
             painter.forward(60)
-            painter.dot(5, colors[col])
+            painter.dot(5, COLORS[col])
             col += 1
             if col > 16:
                 col = 0
