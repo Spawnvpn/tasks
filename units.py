@@ -19,8 +19,6 @@ class Unit(object):
         self.active = active
 
     def get_recharge(self):
-        if self.recharge_time > 0:
-            print self.recharge_time
         if self.recharge_time < time.time():
             return RECHARGED
         else:
