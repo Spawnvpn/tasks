@@ -64,7 +64,7 @@ class Army(object):
 
     def get_strategy(self, army):
         if self.strategy == "random":
-            random.shuffle(army.units)
+            random.shuffle(army.squads)
 
         elif self.strategy == "weakest":
             for squad in army.squads:
@@ -78,9 +78,9 @@ class Army(object):
             for squad in army.squads:
                 for every in army.squads:
                     if every.power > squad.power:
-                        buff = army.squads[squad]
-                        army.squads[squad] = every
-                        army.squads[every] = buff
+                        buff = army.squads[army.squads.index(squad)]
+                        army.squads[army.squads.index(squad)] = every
+                        army.squads[army.squads.index(every)] = buff
 
     def active_squads(self):
         active_squads = list()
@@ -105,8 +105,8 @@ class Battlefield(object):
     #    self.armies = self.armies
 
     def start(self):
-        army_1 = Army(number_of_squads=10, number_of_units=6, strategy="weakest")
-        army_2 = Army(number_of_squads=10, number_of_units=6, strategy="weakest")
+        army_1 = Army(number_of_squads=2, number_of_units=5, strategy="random")
+        army_2 = Army(number_of_squads=2, number_of_units=5, strategy="random")
         while army_1.active and army_2.active:
             army_1.attack(army_2)
             army_2.attack(army_1)
