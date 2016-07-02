@@ -1,95 +1,124 @@
-import time
-from random import random
+from units import *
 
-RECHARGED = True
-RECHARGING = False
 
-class Unit(object):
+class Squad(object):
 
-    def __init__(self):
-        self.health = 100
-        self.recharge = float()
-        self.armour = float()
+    def __init__(self, number_of_units):
+        self.number_of_units = number_of_units
+        self.units = list()
+        self.get_units()
+        self.power = self.get_power()
+        self.active = True
 
-    def get_recharge(self):
-        counter = time.ctime()
-        if counter > self.recharge:
-            return RECHARGED
+    def get_units(self):
+        if self.number_of_units > 10:
+            self.number_of_units = 10
+        elif self.number_of_units < 5:
+            self.number_of_units = 5
+        for _ in xrange(0, self.number_of_units):
+            self.units.append(random.choice([Solder(), Vehicle()]))
+
+    def is_active_units(self):
+        active_units = list()
+        for unit in self.units:
+            if unit.active:
+                active_units.append(unit)
+        return active_units
+
+    def get_power(self):
+        squad_power = float()
+        self.units = self.is_active_units()
+        for unit in self.units:
+            squad_power += unit.do_attack() / len(self.units)
+        return squad_power
+
+    def take_damage(self, mutual_damage):
+        if mutual_damage != 0 and len(self.units) != 0:
+            damage = mutual_damage / len(self.units)
         else:
-            return RECHARGING
-
-    def get_health(self):
-        pass
-
-class Solder(Unit):
-
-    def __init__(self, **kwargs):
-        super(Solder, **kwargs).__init__(**kwargs)
-        self.experience = 0.0
-        self.recharge = random(100, 2000)
-
-    def do_attack(self, experience):
-        damage = 0,5 * (1 + self.health / 100) * random(50 + experience, 100) / 100
-        return damage
-
-    def get_armour(self):
-        self.armour = 0.05 + self.experience / 100
-        return self.armour
-
-    def take_damage(self, damage):
-        self.health -= damage - self.armour
-        return self.health
-
-    def get_recharge(self):
-        timer = time.ctime()
-
-
-class Vehicles(Unit):
-
-    def __init__(self, **kwargs):
-        super(Vehicles, **kwargs).__init__(**kwargs)
-        self.operators = int()
-        self.recharge = random(1000, 2000)
-
-    def do_attack(self):
-        recharge_state = self.get_recharge()
-        if recharge_state:
-            damage = 0.1 + sum(self.operators.experience / 100)
-            return damage
-        elif not recharge_state:
-            return 0
-
-    def get_armour(self, experience):
-        armour = 0.05 + experience / 100
-        return armour
-
-    def take_damage(self, armour, damage):
-        result_health = self.health * len(operators) - (damage - armour)
-        return result_health
+            damage = 0
+        for unit in self.units:
+            unit.take_damage(damage)
+        self.units = self.is_active_units()
+        if len(self.units) == 0:
+            self.active = False
 
 
 class Army(object):
 
-    def __init__(self):
-        squads = Squad[]
-        strategy = AtackStrategy
+    def __init__(self, number_of_squads, number_of_units, strategy):
+        self.number_of_squads = number_of_squads
+        self.number_of_units = number_of_units
+        self.squads = list()
+        self.get_squads()
+        self.strategy = strategy
+        self.active = True
 
-    def attack(self,):
-        pass
+    def get_squads(self):
+        if self.number_of_squads > 50:
+            self.number_of_squads = 50
+        elif self.number_of_squads < 2:
+            self.number_of_squads = 2
+        for _ in xrange(1, self.number_of_squads):
+            self.squads.append(Squad(self.number_of_units))
 
-class Squad(object):
+    def get_strategy(self, army):
+        if self.strategy == "random":
+            random.shuffle(army.units)
 
-    def __init__(self):
-        units = Unit
+        elif self.strategy == "weakest":
+            for squad in army.squads:
+                for every in army.squads:
+                    if every.power < squad.power:
+                        buff = army.squads[army.squads.index(squad)]
+                        army.squads[army.squads.index(squad)] = every
+                        army.squads[army.squads.index(every)] = buff
 
-    def get_power(self):
-        pass
+        elif self.strategy == "strongest":
+            for squad in army.squads:
+                for every in army.squads:
+                    if every.power > squad.power:
+                        buff = army.squads[squad]
+                        army.squads[squad] = every
+                        army.squads[every] = buff
+
+    def active_squads(self):
+        active_squads = list()
+        for squad in self.squads:
+            if squad.active:
+                active_squads.append(squad)
+        return active_squads
+
+    def attack(self, army):
+        self.get_strategy(army)
+        if len(army.squads) != 0:
+            for squad in army.squads:
+                squad.take_damage(self.squads[self.squads.index(random.choice(self.squads))].power)
+            self.squads = self.active_squads()
+            if len(self.squads) == 0:
+                self.active = False
 
 
 class Battlefield(object):
 
-    def __init__(self):
-        armies = Army
+    # def __init__(self):
+    #    self.armies = self.armies
 
     def start(self):
-        pass
+        army_1 = Army(number_of_squads=10, number_of_units=6, strategy="weakest")
+        army_2 = Army(number_of_squads=10, number_of_units=6, strategy="weakest")
+        while army_1.active and army_2.active:
+            army_1.attack(army_2)
+            army_2.attack(army_1)
+        if army_1.active:
+            print "Army 1 win!"
+        else:
+            print "Army 1 lose"
+        if army_2.active:
+            print "Army 2 win!"
+        else:
+            print "Army 2 lose"
+
+if __name__ == "__main__":
+    go = Battlefield()
+    go.start()
