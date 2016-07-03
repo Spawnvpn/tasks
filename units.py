@@ -1,3 +1,7 @@
+"""""""""
+This module implements the behavior of the logic units and their parameters.
+"""""""""
+
 import time
 import random
 
@@ -9,12 +13,11 @@ RECHARGING = False
 class Unit(object):
 
     def __init__(self, health=100, recharge=float(), recharge_state=RECHARGED,
-                 recharge_time=None, armour=float(), experience=0.0, active=True):
+                 recharge_time=None, experience=0.0, active=True):
         self.health = health
         self.recharge = recharge
         self.recharge_state = recharge_state
         self.recharge_time = recharge_time
-        self.armour = armour
         self.experience = experience
         self.active = active
 
@@ -30,11 +33,13 @@ class Solder(Unit):
     def __init__(self, **kwargs):
         super(Solder, self).__init__(**kwargs)
         self.recharge = random.randint(100.0, 2000.0)
+        self.armour = float()
 
     def do_attack(self):
         self.recharge_state = self.get_recharge()
         if self.recharge_state:
-            damage = 0.5 * (1 + self.health / 100) * random.randrange(50 + self.experience, 100) / 100
+            damage = 15 * (1 + self.health / 100) * random.randrange(
+                50 + self.experience, 101) / 100
             if self.experience < 50:
                 self.experience += 1
             self.recharge_time = time.time() + self.recharge * 10 ** -3
@@ -44,14 +49,14 @@ class Solder(Unit):
 
     def get_armour(self):
         self.armour = 0.05 + self.experience / 100
-        return self.armour
+        return self.armour / 2
 
     def take_damage(self, damage):
+        if damage - self.armour < 0:
+            return
         self.health -= (damage - self.get_armour())
         if self.health <= 0:
             self.active = False
-            return 0
-        return self.health
 
 
 class Vehicle(Unit):
@@ -84,7 +89,7 @@ class Vehicle(Unit):
     def do_attack(self):
         recharge_state = self.get_recharge()
         if recharge_state:
-            damage = 0.5 * (1 + self.health / 100) * self.get_operators_damage()
+            damage = 20 * (1 + self.health / 100) * self.get_operators_damage()
             if self.experience < 50:
                 self.experience += 1
             self.recharge_time = time.time() + self.recharge * 10 ** -3
@@ -107,9 +112,11 @@ class Vehicle(Unit):
             return exp
 
         self.armour = 0.05 + calc_experience() / 100
-        return self.armour
+        return self.armour / 2
 
     def take_damage(self, damage):
+        if damage - self.armour < 0:
+            return
         self.health -= ((damage * 0.6) - self.armour)
         oper_amount = len(self.operators)
         self.operators[0].health -= damage * 0.2
@@ -118,4 +125,3 @@ class Vehicle(Unit):
         self.operators = self.active_operators()
         if self.health <= 0 or len(self.operators) == 0:
             self.active = False
-            return 0

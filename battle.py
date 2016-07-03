@@ -1,3 +1,14 @@
+"""""""""
+This module implements the logic of the battle between the armies.
+First we need to specify the number of armies, the number of units
+of each army, the number of units in the unit of each army and the
+strategy of fighting each army. After starting 2 random army that
+would fight each other will be selected. Logic armies battle consists
+in choosing the enemy army unit according to the strategy and attack
+the last chance of the current army squad.
+After the victory of one army over 2 random selected and the cycle repeats.
+"""""""""
+
 from units import *
 
 
@@ -59,7 +70,7 @@ class Army(object):
             self.number_of_squads = 50
         elif self.number_of_squads < 2:
             self.number_of_squads = 2
-        for _ in xrange(1, self.number_of_squads):
+        for _ in xrange(0, self.number_of_squads):
             self.squads.append(Squad(self.number_of_units))
 
     def get_strategy(self, army):
@@ -93,7 +104,8 @@ class Army(object):
         self.get_strategy(army)
         if len(army.squads) != 0:
             for squad in army.squads:
-                squad.take_damage(self.squads[self.squads.index(random.choice(self.squads))].power)
+                squad.take_damage(self.squads[
+                    self.squads.index(random.choice(self.squads))].get_power())
             self.squads = self.active_squads()
             if len(self.squads) == 0:
                 self.active = False
@@ -101,23 +113,42 @@ class Army(object):
 
 class Battlefield(object):
 
-    # def __init__(self):
-    #    self.armies = self.armies
+    def __init__(self, armies_active=True):
+        self.armies_active = armies_active
 
     def start(self):
-        army_1 = Army(number_of_squads=2, number_of_units=5, strategy="random")
-        army_2 = Army(number_of_squads=2, number_of_units=5, strategy="random")
-        while army_1.active and army_2.active:
-            army_1.attack(army_2)
-            army_2.attack(army_1)
-        if army_1.active:
-            print "Army 1 win!"
-        else:
-            print "Army 1 lose"
-        if army_2.active:
-            print "Army 2 win!"
-        else:
-            print "Army 2 lose"
+        armies = list()
+        for i in xrange(int(raw_input("Enter number of armies: "))):
+            number_of_units = int(raw_input(
+                "Enter number of units %s army: " % (i + 1)))
+            number_of_squads = int(raw_input(
+                "Enter number of squads %s army: " % (i + 1)))
+            strategy = str(raw_input(
+                "Enter type of strategy %s army: " % (i + 1)))
+            i = Army(number_of_units, number_of_squads, strategy)
+            armies.append(i)
+        while self.armies_active:
+            some_army = armies[armies.index(random.choice(armies))]
+            some_else_army = armies[armies.index(random.choice(armies))]
+            if some_army != some_else_army:
+                while some_army.active and some_else_army.active:
+                    some_army.attack(some_else_army)
+                    some_else_army.attack(some_army)
+            self.is_active_armies(armies)
+
+    def is_active_armies(self, armies):
+        count_inactive_armies = int()
+        for army in armies:
+            if not army.active:
+                count_inactive_armies += 1
+        if count_inactive_armies == len(armies) - 1:
+            for win in armies:
+                if win.active:
+                    print "Army %s win!" % (armies.index(win) + 1)
+                    self.armies_active = False
+                    return
+        self.armies_active = True
+        return
 
 if __name__ == "__main__":
     go = Battlefield()
