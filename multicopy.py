@@ -18,6 +18,8 @@ if __name__ == '__main__':
     if input("Load quantity of processes? Y / N ") == "Y":
         f = open("number_of_processes.txt", 'r')
         n_processes = json.load(f)
+    elif input("Enter quantity of processes? Y / N ") == "Y":
+        n_processes = input(int("Input quantity of processes: "))
     else:
         n_processes = 3
 
